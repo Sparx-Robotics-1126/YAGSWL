@@ -35,9 +35,9 @@ private final SwerveSubsystem drivebase = new SwerveSubsystem(
     // left stick controls translation
     // right stick controls the angular velocity of the robot
     Command driveFieldOrientedAnglularVelocity = drivebase.driveCommand(
-        () -> MathUtil.applyDeadband(driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND),
-        () -> MathUtil.applyDeadband(driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND),
-        () -> driverXbox.getRightX());
+        () -> MathUtil.clamp(MathUtil.applyDeadband(-driverXbox.getLeftY(), OperatorConstants.LEFT_Y_DEADBAND), -0.75, 0.75),
+        () -> MathUtil.clamp(MathUtil.applyDeadband(-driverXbox.getLeftX(), OperatorConstants.LEFT_X_DEADBAND), -0.75, 0.75),
+        () -> -driverXbox.getRightX());
         
     drivebase.setDefaultCommand(driveFieldOrientedAnglularVelocity);
     // drivebase.setDefaultCommand(closedAbsoluteDrive);
@@ -83,13 +83,16 @@ private final SwerveSubsystem drivebase = new SwerveSubsystem(
    */
   public Command getAutonomousCommand() {
     // An example command will be run in autonomous
-    return Commands.none();
+    return Commands.sequence(
+      drivebase.getAutonomousCommand("Example Path", true),
+      drivebase.getAutonomousCommand("Example Path", false)
+    );
   }
 
   public void setDriveMode() {
     // drivebase.setDefaultCommand();
   }
-
+// 100% goon activated
   public void setMotorBrake(boolean brake) {
     drivebase.setMotorBrake(brake);
   }
